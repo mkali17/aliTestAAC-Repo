@@ -1,2 +1,2 @@
-# aliTestAAC-Repo
-ali Test AAC repo
+# trainingApp
+Cloud training Event repository
