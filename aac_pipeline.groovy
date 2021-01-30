@@ -1,4 +1,4 @@
-// Declarative pipeline - mka
+//Declarative pipeline - mka
 pipeline {
   agent any
   tools
