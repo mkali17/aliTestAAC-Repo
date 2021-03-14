@@ -1,4 +1,4 @@
-//Declarative pipeline - mka
+//Declarative pipeline
 pipeline {
   agent any
   tools
@@ -6,12 +6,11 @@ pipeline {
        maven "Maven"
     }
   stages {
-     /* stage('checkout_application'){ 
+      stage('checkout_application'){ 
         steps {
-          git branch: 'main', url: 'https://github.com/ahossain71/trainingApp.git'
+          git branch: 'master', url: 'https://github.com/ahossain71/trainingApp.git'
           }
       }
-    */
       stage('Tools Init') {
         steps {
             script {
@@ -23,18 +22,27 @@ pipeline {
             }
         }
       }
-
     stage('Execute Maven') {
             steps {
               sh 'mvn package'             
           }
         }
+    stage('Copy build to S3') {
+        steps{
+             sh 'aws s3 cp ./target/training-tomcatweb-integration.war s3://application-pkgs/trainingApp/'
+         }//end steps
+    }//end stage
+    stage('checkout_training_playbooks'){ 
+        steps {
+          git branch: 'main', url: 'https://github.com/ahossain71/training_playbooks.git'
+          }
+      }
     stage('Ansible Deploy') {
         steps{
-             withCredentials([sshUserPrivateKey(credentialsId: '5ef2c402-fa06-4da8-9ba8-83c761328306', keyFileVariable: 'myKey')]) {
-               // sh 'ansible-playbook ./ansible/playbooks/deploy_trainingApp.yml --user ubuntu --key-file ${myKEY}'  
-            }//end withCredentials
-      }//end steps
+          withCredentials([sshUserPrivateKey(credentialsId: 'a59a13e3-8e2f-4920-83c9-a49b576e5d58', keyFileVariable: 'myTestKeyPair02')]) {
+                sh 'ansible-playbook ./ansible/playbooks/deploy_trainingApp.yml --user ubuntu --key-file ${myTestKeyPair02}'  
+          }//end withCredentials
+     }//end steps
     }//end stage
   }// end stages
 }//end pipeline
